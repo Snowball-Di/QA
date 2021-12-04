@@ -1,3 +1,14 @@
+# PyCharm 搞的东西
+.idea/
+
+# HuggingFace Transformers 模型下载缓存文件夹
+.model_cache/
+
+# 一些本地产生的大文件
+retriever/zh-wiki/
+*.db
+&.npz
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
