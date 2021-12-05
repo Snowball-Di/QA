@@ -25,14 +25,11 @@ class TfidfDocRanker(object):
     def __init__(self, tfidf_path=None, strict=True):
         """
         不用传参，用默认的就行
-        Args:
-            tfidf_path: path to saved model file
-            strict: fail on empty queries or continue (and return empty result)
         """
         # 从磁盘读取稀疏矩阵的npz文件，载入
-        tfidf_path = tfidf_path or data_paths.DOCS_TFIDF_PATH
-        logger.info('Loading %s' % tfidf_path)
-        matrix, metadata = utils.load_sparse_csr(tfidf_path)
+        path = tfidf_path if tfidf_path is not None else data_paths.DOCS_TFIDF_PATH
+        logger.info('Loading %s' % path)
+        matrix, metadata = utils.load_sparse_csr(path)
         self.doc_mat = matrix
         self.ngrams = metadata['ngram']
         self.hash_size = metadata['hash_size']
