@@ -15,7 +15,6 @@ from functools import partial
 
 import utils
 import data_paths
-# from .. import tokenizers
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +32,7 @@ class TfidfDocRanker(object):
         self.doc_mat = matrix
         self.ngrams = metadata['ngram']
         self.hash_size = metadata['hash_size']
-        self.tokenizer = tokenizer()
+        self.tokenizer = Tokenizer()
         self.doc_freqs = metadata['doc_freqs'].squeeze()
         self.doc_dict = metadata['doc_dict']
         self.num_docs = len(self.doc_dict[0])

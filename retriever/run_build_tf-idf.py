@@ -26,7 +26,7 @@ console.setFormatter(fmt)
 logger.addHandler(console)
 
 doc2index = {}  # 到索引的映射，会在读取的时候初始化
-tokenizer = None
+tokenizer = Tokenizer()
 database = DocDB()  # 一次性实例化，之后一直用
 
 
