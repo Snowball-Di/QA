@@ -30,7 +30,7 @@ class Reader:
     def answer(self, q, doc):
         """仅返回一个答案字符串"""
         ans = self.pipeline_reader(q, doc, top_k=1)['answer']
-        return ans if ans != '' else '*Impossible!'
+        return ans if ans != '' else '不知道'
 
     def pipeline_reader(self, q, doc, **kwargs):
         """
@@ -69,9 +69,9 @@ def test_models_with_news():
                  '北理工食堂在哪？']
 
     # 测试NLP工具包LTP的分词功能
-    ltp = LTP('base', cache_dir=CACHE_DIR)
-    seg_result, _ = ltp.seg([document] + questions)  # ltp分词器
-    print(seg_result)
+    # ltp = LTP('base', cache_dir=CACHE_DIR)
+    # seg_result, _ = ltp.seg([document] + questions)  # ltp分词器
+    # print(seg_result)
 
     # 3种模型 创建实例
     roberta_large = Reader(model_name='luhua/chinese_pretrain_mrc_roberta_wwm_ext_large')

@@ -11,6 +11,8 @@ import numpy as np
 import scipy.sparse as sp
 from sklearn.utils import murmurhash3_32
 
+from . import data_paths
+
 
 # ------------------------------------------------------------------------------
 # Sparse matrix saving/loading helpers.
@@ -51,7 +53,7 @@ def token_hash(token, num_buckets):
 
 
 # 读取中文停用词表，加载为set类型
-with open('stopwords.json', 'r') as f:
+with open(data_paths.ZH_STOPWORDS, 'r') as f:
     stopwords_list = json.loads(f.read())
 stopwords = set(stopwords_list)
 

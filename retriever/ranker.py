@@ -5,20 +5,16 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 """Rank documents with TF-IDF scores"""
-
-import logging
 import numpy as np
 import scipy.sparse as sp
 
 from multiprocessing.pool import ThreadPool
 from functools import partial
 
-import utils
-import data_paths
-from doc_db import DocDB
-from ltptokenizer import Tokenizer
-
-logger = logging.getLogger(__name__)
+from . import utils
+from . import data_paths
+from .doc_db import DocDB
+from .ltptokenizer import Tokenizer
 
 
 class TfidfDocRanker(object):
@@ -29,7 +25,7 @@ class TfidfDocRanker(object):
         """
         # 读取稀疏矩阵的npz文件，载入数据
         path = tfidf_path if tfidf_path is not None else data_paths.DOCS_TFIDF_PATH
-        logger.info('Loading %s' % path)
+        print('正在载入文档', path, '这需要一些时间...')
         matrix, metadata = utils.load_sparse_csr(path)
         self.doc_mat = matrix
         self.ngrams = metadata['ngram']
@@ -89,7 +85,7 @@ class TfidfDocRanker(object):
             if self.strict:
                 raise RuntimeError('No valid word in: %s' % query)
             else:
-                logger.warning('No valid word in: %s' % query)
+                print('No valid word in: %s' % query)
                 return sp.csr_matrix((1, self.hash_size))
 
         # Count TF
@@ -116,7 +112,7 @@ class TfidfDocRanker(object):
 if __name__ == '__main__':
     # 测试检索效果，返回top10文档
     ranker = TfidfDocRanker()
-    result = ranker.closest_docs('北京理工大学的校长是谁？', k=10)
+    result = ranker.closest_docs('哔哩哔哩动画', k=10)
     database = DocDB()
 
     for i in range(10):

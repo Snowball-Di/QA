@@ -16,7 +16,7 @@ from multiprocessing import Pool as ProcessPool
 from tqdm import tqdm
 from opencc import OpenCC
 
-import data_paths
+from . import data_paths
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

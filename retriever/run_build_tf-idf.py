@@ -16,8 +16,8 @@ from multiprocessing import Pool as ProcessPool
 
 import utils
 import data_paths
-from doc_db import DocDB
-from ltptokenizer import Tokenizer
+from .doc_db import DocDB
+from .ltptokenizer import Tokenizer
 
 """构建TF-IDF文档矩阵"""
 

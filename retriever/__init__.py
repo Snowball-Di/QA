@@ -1,2 +1,5 @@
-from doc_db import DocDB
-from ranker import TfidfDocRanker as Ranker
+from . import doc_db
+from . import ranker
+
+DocDB = doc_db.DocDB
+Ranker = ranker.TfidfDocRanker

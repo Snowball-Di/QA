@@ -51,6 +51,7 @@ class Tokens(object):
 class Tokenizer:
 
     def __init__(self, mtype='small', device='cuda:0'):
+        # 默认加载到GPU
         self.model = LTP(mtype, device=device, cache_dir='.model_cache')
 
     def tokenize(self, text):
