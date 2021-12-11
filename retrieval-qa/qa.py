@@ -13,14 +13,16 @@ class QA:
     def __call__(self, question, k_docs=5):
         self.ranker.closest_docs(question, k_docs)
 
-        # 处理返回的文档id和分数
+        # 处理返回的文档id和分数，考虑选取1篇，或者多篇
         best_doc_id = None
         pass
 
+        # 读文档，文档会可能很长，考虑进一步处理
         document = self.database.get_doc_text(best_doc_id)
+        print('Document Retrieved:', document)
         outputs = self.reader.pipeline_reader(question, document)
 
-        # 处理QA pipeline返回的答案
+        # 处理pipeline返回的内容
         pass
 
         return outputs[0]['answer']

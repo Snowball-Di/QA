@@ -1,6 +1,5 @@
 # coding:utf-8
 from functools import partial
-
 import torch
 from ltp import LTP
 from tqdm import tqdm
@@ -14,7 +13,7 @@ CACHE_DIR = './.model_cache'  # 模型下载缓存到的目录
 class Reader:
 
     def __init__(self, model_name='luhua/chinese_pretrain_mrc_roberta_wwm_ext_large'):
-        print('正在载入模型', model_name, '，这需要一些时间...')
+        print('正在载入模型', model_name, ', 这需要一些时间...')
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=CACHE_DIR)
         self.model = AutoModelForQuestionAnswering.from_pretrained(model_name, cache_dir=CACHE_DIR)
         self._hugging_face_pipeline = QAPipeline(model=self.model, tokenizer=self.tokenizer)
@@ -22,7 +21,7 @@ class Reader:
         self.pipeline = partial(self._hugging_face_pipeline,
                                 top_k=2,  # 默认值是1
                                 doc_stride=128,  # 默认值是128
-                                max_answer_len=20,  # 默认值是15
+                                max_answer_len=128,  # 默认值是15
                                 max_seq_len=384,  # 默认值是384
                                 max_question_len=64,  # 默认值是64
                                 handle_impossible_answer=True  # 默认值是False
@@ -31,7 +30,7 @@ class Reader:
     def answer(self, q, doc):
         """仅返回一个答案字符串"""
         ans = self.pipeline_reader(q, doc, top_k=1)['answer']
-        return ans if ans != '' else 'Impossible!'
+        return ans if ans != '' else '*Impossible!'
 
     def pipeline_reader(self, q, doc, **kwargs):
         """
