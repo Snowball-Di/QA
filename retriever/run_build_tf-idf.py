@@ -5,34 +5,27 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 # 这个文件基本被我从头魔改到尾了
+from functools import partial
 
 import numpy as np
 import scipy.sparse as sp
 import math
-import logging
 from collections import Counter
+from tqdm import tqdm
+from multiprocessing import Pool as ProcessPool
 
 import utils
 import data_paths
 from doc_db import DocDB
+from ltptokenizer import Tokenizer
 
 """构建TF-IDF文档矩阵"""
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-fmt = logging.Formatter('%(asctime)s: [ %(message)s ]', '%m/%d/%Y %I:%M:%S %p')
-console = logging.StreamHandler()
-console.setFormatter(fmt)
-logger.addHandler(console)
-
-doc2index = {}  # 到索引的映射，会在读取的时候初始化
-tokenizer = Tokenizer()
 database = DocDB()  # 一次性实例化，之后一直用
-
-
-def tokenize(text):
-    global tokenizer
-    return tokenizer.tokenize(text)
+doc_ids = database.get_doc_ids()  # 从数据库拿到所有文档的id（不是数字），然后把它们映射为索引
+doc2index = {doc_id: i for i, doc_id in enumerate(doc_ids)}  # # 这个字典能把文档id映射为索引下标
+tokenizer = Tokenizer(mtype='tiny', device='cuda:0')
+index2tokens_buffer = {}
 
 
 # ------------------------------------------------------------------------------
@@ -40,11 +33,36 @@ def tokenize(text):
 # ------------------------------------------------------------------------------
 
 
+def get_tokens_of_doc(doc_index):
+    """此函数需要按顺序调用"""
+    # 尝试分词用batch，但是发现速度不会提升
+    seg_batch_size = 32
+    global index2tokens_buffer
+
+    if doc_index % seg_batch_size == 0:
+        end_index = min(doc_index+seg_batch_size, len(doc_ids))
+        docs = [database.get_doc_text(doc_ids[idx]) for idx in range(doc_index, end_index)]
+        seg_results = tokenizer.tokenize_batch(docs)
+        # 控制字典不占用太多空间
+        index2tokens_buffer.clear()
+        for idx in range(doc_index, end_index):
+            index2tokens_buffer[idx] = seg_results[idx-doc_index]
+
+    tokens = index2tokens_buffer.get(doc_index)
+    if tokens is None:
+        raise RuntimeError
+    else:
+        return tokens
+
+
 def count(ngram, hash_size, doc_id):
     """接受文档id，处理文档文本并返回ngram哈希后的个数，以稀疏矩阵的格式返回"""
+    # doc_id = doc_ids[doc_index]
+    global doc2index
+    doc_index = doc2index[doc_id]
     row, col, data = [], [], []
-    # Tokenize
-    tokens = tokenize(database.get_doc_text(doc_id))
+    tokens = tokenizer.tokenize(database.get_doc_text(doc_id))
+    # tokens = get_tokens_of_doc(doc_index)
 
     # Get ngrams from tokens, with stopwords/punctuation filtering.
     all_ngrams = tokens.ngrams(n=ngram, uncased=True, filter_fn=utils.filter_ngram)
@@ -54,7 +72,7 @@ def count(ngram, hash_size, doc_id):
 
     # Return in sparse matrix data format.
     row.extend(counts.keys())
-    col.extend([doc2index[doc_id]] * len(counts))
+    col.extend([doc_index] * len(counts))
     data.extend(counts.values())
     return row, col, data
 
@@ -64,19 +82,27 @@ def get_count_matrix(ngram, hash_size):
 
     M[i, j] = # times word i appears in document j.
     """
-    # 从数据库拿到所有文档的id（不是数字），然后把它们映射为索引
-    doc_ids = database.get_doc_ids()
-    global doc2index
-    doc2index = {doc_id: i for i, doc_id in enumerate(doc_ids)}
-
     row, col, data = [], [], []
-    for doc_id in doc_ids:
-        _row, _col, _data = count(ngram, hash_size, doc_id)
-        row.extend(_row)
-        col.extend(_col)
-        data.extend(_data)
+    # 分batch多进程，不加多进程的版本在下面的注释里
+    workers = ProcessPool(2)
+    step = 1024
+    batches = [doc_ids[i:i + step] for i in range(0, len(doc_ids), step)]
+    _count = partial(count, ngram, hash_size)
+    for batch in tqdm(batches, desc='tokenizing and counting the ngrams', colour='blue'):
+        for b_row, b_col, b_data in workers.imap_unordered(_count, batch):
+            row.extend(b_row)
+            col.extend(b_col)
+            data.extend(b_data)
+    workers.close()
+    workers.join()
+    # 因为要过LTP的ELECTRA模型来分词，这一步会非常的慢
+    # for doc_index in tqdm(range(len(doc_ids)), desc='tokenizing and counting the ngrams', colour='blue'):
+    #     _row, _col, _data = count(ngram, hash_size, doc_index)
+    #     row.extend(_row)
+    #     col.extend(_col)
+    #     data.extend(_data)
 
-    logger.info('Creating sparse matrix...')
+    print('分词，统计ngram已完成，开始创建稀疏矩阵')
     count_csr_matrix = sp.csr_matrix(
         (data, (row, col)), shape=(hash_size, len(doc_ids))
     )
@@ -108,25 +134,22 @@ def get_tfidf_matrix(cnt_matrix):
 
 def get_doc_freqs(cnt_matrix):
     """Return word --> # of docs it appears in."""
+    # 从计数矩阵统计出词的文档频率DF
     binary = (cnt_matrix > 0).astype(int)
-    freqs = np.array(binary.sum(1)).squeeze()
-    return freqs
+    return np.array(binary.sum(1)).squeeze()
 
 
 if __name__ == '__main__':
     ngrams = 2  # 论文给的推荐，并不打算修改它
     hash_bucket_size = int(math.pow(2, 24))  # 这是把ngram散列到索引值时，对它取模，以控制矩阵的规模，2^24约为一千六百万
 
-    logging.info('Counting words...')
+    # 统计ngram个数，返回count矩阵
     count_matrix, doc_dict = get_count_matrix(ngrams, hash_bucket_size)
-
-    logger.info('Making tfidf vectors...')
+    # 计算出tf-idf矩阵和词文档频率
     tfidf = get_tfidf_matrix(count_matrix)
-
-    logger.info('Getting word-doc frequencies...')
     freqs = get_doc_freqs(count_matrix)
 
-    logger.info('Saving to %s' % data_paths.DOCS_TFIDF_PATH)
+    print('Saving to %s' % data_paths.DOCS_TFIDF_PATH)
     metadata = {
         'doc_freqs': freqs,
         'hash_size': hash_bucket_size,

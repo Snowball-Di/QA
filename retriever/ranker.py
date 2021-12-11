@@ -15,6 +15,8 @@ from functools import partial
 
 import utils
 import data_paths
+from doc_db import DocDB
+from ltptokenizer import Tokenizer
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +27,7 @@ class TfidfDocRanker(object):
         """
         不用传参，用默认的就行
         """
-        # 从磁盘读取稀疏矩阵的npz文件，载入
+        # 读取稀疏矩阵的npz文件，载入数据
         path = tfidf_path if tfidf_path is not None else data_paths.DOCS_TFIDF_PATH
         logger.info('Loading %s' % path)
         matrix, metadata = utils.load_sparse_csr(path)
@@ -109,3 +111,14 @@ class TfidfDocRanker(object):
         )
         # 返回稀疏向量，即一个(1, hash_size)的矩阵
         return spvec
+
+
+if __name__ == '__main__':
+    # 测试检索效果，返回top10文档
+    ranker = TfidfDocRanker()
+    result = ranker.closest_docs('北京理工大学的校长是谁？', k=10)
+    database = DocDB()
+
+    for i in range(10):
+        print('\ndocument rank', i+1, ' 文档标题:', database.get_doc_title(result[0][i]))
+        print('正文：', database.get_doc_text(result[0][i]))

@@ -31,16 +31,15 @@ disambiguation = converter.convert('消歧义')
 
 def preprocess(article):
     """
-    用于清洗文本的函数
-    :param article:
-    :return:
+    用于清洗文本的函数，输入为单行json解析后的对象
     """
-    # 有很多没有正文的页面
+    # 有很多没有正文的页面，丢弃
     if article['text'] == '':
         return None
-    # 这个东西似乎是用来把一个东西指向好几个东西用的
+    # 标题带[（消歧义）]的
     if disambiguation in article['title']:
         return None
+    # 繁体中文转为简体中文
     return {'id': article['id'], 'title': converter.convert(article['title']),
             'text': converter.convert(article['text'])}
 
@@ -97,7 +96,6 @@ def store_contents(data_path, save_path, num_workers=1):
     files = [f for f in iter_files(data_path)]
     count = 0
     with tqdm(total=len(files)) as pbar:
-
         for tuples in workers.imap_unordered(get_contents, files):
             count += len(tuples)
             c.executemany("INSERT INTO documents VALUES (?,?,?)", tuples)
