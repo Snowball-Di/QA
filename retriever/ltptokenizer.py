@@ -28,7 +28,7 @@ class Tokens(object):
             uncased: lower cases text
             filter_fn: user function that takes in an ngram list and returns
               True or False to keep or not keep the ngram
-            as_string: return the ngram as a string vs list
+            as_strings: return the ngram as a string vs list
         """
         def _skip(gram):
             if not filter_fn:
@@ -50,7 +50,7 @@ class Tokens(object):
 
 class Tokenizer:
 
-    def __init__(self, mtype='small', device='cuda:0'):
+    def __init__(self, mtype='base', device='cuda:0'):
         # 默认加载到GPU
         self.model = LTP(mtype, device=device, cache_dir='.model_cache')
 

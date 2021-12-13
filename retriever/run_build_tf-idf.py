@@ -16,15 +16,15 @@ from multiprocessing import Pool as ProcessPool
 
 import utils
 import data_paths
-from .doc_db import DocDB
-from .ltptokenizer import Tokenizer
+from doc_db import DocDB
+from ltptokenizer import Tokenizer
 
 """构建TF-IDF文档矩阵"""
 
 database = DocDB()  # 一次性实例化，之后一直用
 doc_ids = database.get_doc_ids()  # 从数据库拿到所有文档的id（不是数字），然后把它们映射为索引
 doc2index = {doc_id: i for i, doc_id in enumerate(doc_ids)}  # # 这个字典能把文档id映射为索引下标
-tokenizer = Tokenizer(mtype='tiny', device='cuda:0')
+tokenizer = Tokenizer()  # mtype='tiny', device='cuda:0')
 index2tokens_buffer = {}
 
 
@@ -61,7 +61,7 @@ def count(ngram, hash_size, doc_id):
     global doc2index
     doc_index = doc2index[doc_id]
     row, col, data = [], [], []
-    tokens = tokenizer.tokenize(database.get_doc_text(doc_id))
+    tokens = tokenizer.tokenize(database.get_doc_title(doc_id) + database.get_doc_text(doc_id))
     # tokens = get_tokens_of_doc(doc_index)
 
     # Get ngrams from tokens, with stopwords/punctuation filtering.
@@ -84,23 +84,24 @@ def get_count_matrix(ngram, hash_size):
     """
     row, col, data = [], [], []
     # 分batch多进程，不加多进程的版本在下面的注释里
-    workers = ProcessPool(2)
-    step = 1024
-    batches = [doc_ids[i:i + step] for i in range(0, len(doc_ids), step)]
-    _count = partial(count, ngram, hash_size)
-    for batch in tqdm(batches, desc='tokenizing and counting the ngrams', colour='blue'):
-        for b_row, b_col, b_data in workers.imap_unordered(_count, batch):
-            row.extend(b_row)
-            col.extend(b_col)
-            data.extend(b_data)
-    workers.close()
-    workers.join()
+    # workers = ProcessPool(2)
+    # step = 1024
+    # batches = [doc_ids[i:i + step] for i in range(0, len(doc_ids), step)]
+    # _count = partial(count, ngram, hash_size)
+    # for batch in tqdm(batches, desc='tokenizing and counting the ngrams', colour='blue'):
+    #     for b_row, b_col, b_data in workers.imap_unordered(_count, batch):
+    #         row.extend(b_row)
+    #         col.extend(b_col)
+    #         data.extend(b_data)
+    # workers.close()
+    # workers.join()
+    # ````````````````````````````````````````````````````
     # 因为要过LTP的ELECTRA模型来分词，这一步会非常的慢
-    # for doc_index in tqdm(range(len(doc_ids)), desc='tokenizing and counting the ngrams', colour='blue'):
-    #     _row, _col, _data = count(ngram, hash_size, doc_index)
-    #     row.extend(_row)
-    #     col.extend(_col)
-    #     data.extend(_data)
+    for doc_index in tqdm(range(len(doc_ids)), desc='tokenizing and counting the ngrams', colour='blue'):
+        _row, _col, _data = count(ngram, hash_size, doc_index)
+        row.extend(_row)
+        col.extend(_col)
+        data.extend(_data)
 
     print('分词，统计ngram已完成，开始创建稀疏矩阵')
     count_csr_matrix = sp.csr_matrix(
@@ -141,7 +142,7 @@ def get_doc_freqs(cnt_matrix):
 
 if __name__ == '__main__':
     ngrams = 2  # 论文给的推荐，并不打算修改它
-    hash_bucket_size = int(math.pow(2, 24))  # 这是把ngram散列到索引值时，对它取模，以控制矩阵的规模，2^24约为一千六百万
+    hash_bucket_size = int(math.pow(2, 30))  # 这是把ngram散列到索引值时，对它取模，以控制矩阵的规模，2^24约为一千六百万
 
     # 统计ngram个数，返回count矩阵
     count_matrix, doc_dict = get_count_matrix(ngrams, hash_bucket_size)

@@ -28,10 +28,14 @@ class TfidfDocRanker(object):
         print('正在载入文档', path, '这需要一些时间...')
         matrix, metadata = utils.load_sparse_csr(path)
         self.doc_mat = matrix
+        print('csr matrix len:', self.doc_mat.shape)
         self.ngrams = metadata['ngram']
+        print('ngram:', self.ngrams)
         self.hash_size = metadata['hash_size']
-        self.tokenizer = Tokenizer()
+        print('hash size:', self.hash_size)
+        self.tokenizer = Tokenizer(mtype='tiny')
         self.doc_freqs = metadata['doc_freqs'].squeeze()
+        print('doc_freq', self.doc_freqs.shape)
         self.doc_dict = metadata['doc_dict']
         self.num_docs = len(self.doc_dict[0])
         self.strict = strict
