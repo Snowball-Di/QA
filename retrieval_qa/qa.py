@@ -38,16 +38,14 @@ class QA:
         return outputs
 
 
-if __name__ == '__main__':
-    qa_system = QA()
-    questions = [
+default_questions = ['你谁啊？',
                  '天安门在哪？',
                  '习近平在哪里出生？',
                  '贝多芬于哪里出生？',
                  '鲲鹏处理器是什么？',
                  '乞力马扎罗山在哪？',
                  '猫有几条腿？',
-                 '太阳系有哪几个行星？',
+                 '太阳系有几个行星？',
                  '什么是自动问答？',
                  '人为什么要睡觉？',
                  '人为什么会困？',
@@ -73,6 +71,10 @@ if __name__ == '__main__':
                  '宇宙的答案是什么？',
                  '我去复习计算机组成原理了，拜拜了您内！']
 
-    for i, q in enumerate(questions):
+
+if __name__ == '__main__':
+    qa_system = QA()
+
+    for i, q in enumerate(default_questions):
         print('|问题', i, ':', q)
         print('|    ', qa_system.simple_ans(q))
