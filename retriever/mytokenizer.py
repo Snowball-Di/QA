@@ -1,7 +1,7 @@
 
 
 # from ltp import LTP
-from pkuseg import pkuseg
+# from pkuseg import pkuseg
 from pyhanlp import HanLP
 
 

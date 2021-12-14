@@ -14,10 +14,10 @@ from collections import Counter
 from tqdm import tqdm
 from multiprocessing import Pool as ProcessPool
 
-import utils
-import data_paths
-from doc_db import DocDB
-from mytokenizer import Tokenizer
+from . import utils
+from . import data_paths
+from .doc_db import DocDB
+from .mytokenizer import Tokenizer
 
 """构建TF-IDF文档矩阵"""
 
@@ -86,7 +86,7 @@ def get_count_matrix(ngram, hash_size):
     row, col, data = [], [], []
     # 分batch多进程，不加多进程的版本在下面的注释里
     workers = ProcessPool(5)
-    step = 4096
+    step = 4096  # 一个batch
     batches = [doc_ids[i:i + step] for i in range(0, len(doc_ids), step)]
     _count = partial(count, ngram, hash_size)
     for batch in tqdm(batches, desc='tokenizing and counting the ngrams', colour='blue'):

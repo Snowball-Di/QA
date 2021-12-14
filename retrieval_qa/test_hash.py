@@ -2,7 +2,7 @@
 
 from retriever import DocDB
 from retriever import utils
-from retriever import ltptokenizer
+from retriever import mytokenizer
 
 
 hash_size = pow(2, 24)
@@ -18,4 +18,4 @@ grams = tokens.ngrams(n=2, uncased=True, filter_fn=utils.filter_ngram)
 for g in grams:
     hash_code = utils.token_hash(g, hash_size)
     if hash_code == code:
-        print('!!!' + g)
+        print('!!!' + g)  #真nm撞哈希了，垃圾分词
