@@ -30,7 +30,7 @@ class Reader:
     def answer(self, q, doc):
         """仅返回一个答案字符串"""
         ans = self.pipeline_reader(q, doc, top_k=1)['answer']
-        return ans if ans != '' else '不知道'
+        return ans if ans != "" else '不知道'
 
     def pipeline_reader(self, q, doc, **kwargs):
         """
@@ -80,8 +80,8 @@ def test_models_with_news():
 
     for i, _q in tqdm(enumerate(questions)):
         print('\n> 问题', i+1, ':', _q)
-        print('roberta(1.2G) >', roberta_large.pipeline_reader(_q, document))
-        print('macbert(1.2G) >', macbert_large.pipeline_reader(_q, document))
+        print('roberta(1.2G) >', roberta_large.answer(_q, document))
+        # print('macbert(1.2G) >', macbert_large.pipeline_reader(_q, document))
         # print('albert(60M)   >', albert.pipeline_reader(_q, document))
 
 

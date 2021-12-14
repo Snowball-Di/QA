@@ -34,11 +34,14 @@ class InteractiveQA(qa.QA):
             else:
                 self.process(input_str)
 
-    def process(self, q, verbose=True):
+    def process(self, q, verbose=True, cutoff=1024):
         try:
             doc_ids = self.ranker.closest_docs(q, k=5)[0]
         except RuntimeError:
             print(Fore.RED + ' BOT : 我不明白你在说什么...')
+            return
+        if len(doc_ids) < 1:
+            print(Fore.RED + ' BOT : 触及到了我的知识盲区...')
             return
 
         if verbose:
@@ -49,13 +52,15 @@ class InteractiveQA(qa.QA):
 
         document_text = self.database.get_doc_text(doc_ids[0])
 
+        if cutoff is not None and len(document_text) > cutoff:
+            print(Fore.RED + ' BOT : 太长了，我只看个开头')
+            document_text = document_text[:cutoff]
+
         if verbose:
             doc_len = len(document_text)
-            print('*'*20 + '文档正文' + '*'*20)
-            print(document_text)
-            print('*'*44)
             print('\n' + Fore.LIGHTBLACK_EX + '正在阅读 \"' + self.database.get_doc_title(doc_ids[0]) + '\" ('
                   + str(doc_len) + ') 以寻找答案...')
+            print(Fore.LIGHTBLACK_EX + '文档正文(节选): ', document_text[:50])
 
         output = self.reader.answer(q, document_text)
         print(Fore.RED + ' BOT : ' + output)
