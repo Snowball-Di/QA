@@ -14,7 +14,7 @@ from functools import partial
 from . import utils
 from . import data_paths
 from .doc_db import DocDB
-from .ltptokenizer import Tokenizer
+from .mytokenizer import Tokenizer
 
 
 class TfidfDocRanker(object):

@@ -1,6 +1,8 @@
 
 
-from ltp import LTP
+# from ltp import LTP
+from pkuseg import pkuseg
+from pyhanlp import HanLP
 
 
 class Tokens(object):
@@ -50,22 +52,35 @@ class Tokens(object):
 
 class Tokenizer:
 
-    def __init__(self, mtype='base', device='cuda:0'):
-        # 默认加载到GPU
-        self.model = LTP(mtype, device=device, cache_dir='.model_cache')
+    def __init__(self):
+        HanLP.Config.ShowTermNature = False
+        # self.model = HanLP()
 
     def tokenize(self, text):
         clean_text = text.replace('\n', ' ')
-        seg_words, _ = self.model.seg([clean_text])
-        return Tokens(seg_words[0])
-
-    def tokenize_batch(self, text_list):
-        clean_list = [t.replace('\n', ' ') for t in text_list]
-        seg_words_list, _ = self.model.seg(clean_list)
-        return [Tokens(seg_words) for seg_words in seg_words_list]
+        result = [str(t) for t in HanLP.segment(clean_text)]
+        return Tokens(result)
 
 
-# #用法
+# class Tokenizer:
+#
+#     def __init__(self, device='cuda:0'):
+#         # 默认加载到GPU
+#         self.model = LTP(device=device, cache_dir='.model_cache/')
+#
+#     def tokenize(self, text):
+#         clean_text = text.replace('\n', ' ')
+#         seg_words, _ = self.model.seg([clean_text])
+#         return Tokens(seg_words[0])
+#
+#     def tokenize_batch(self, text_list):
+#         clean_list = [t.replace('\n', ' ') for t in text_list]
+#         seg_words_list, _ = self.model.seg(clean_list)
+#         return [Tokens(seg_words) for seg_words in seg_words_list]
+
+
+#用法
 # tok = Tokenizer()
-# tokens = tok.tokenize('(蒋本珊)计算机组成原理')
+# tokens = tok.tokenize('习近平 '*10)
+# print()
 # print(tokens.ngrams(n=2))
