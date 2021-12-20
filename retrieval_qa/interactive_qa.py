@@ -1,5 +1,4 @@
 # coding: utf-8
-import os
 
 from colorama import Fore
 import qa
@@ -10,16 +9,16 @@ class InteractiveQA(qa.QA):
 
     def __init__(self):
         super(InteractiveQA, self).__init__()
-        self.tok = mytokenizer.Tokenizer()
+        self.tok = mytokenizer.Tokenizer()  # 用于显示分词结果，与预测无关
         self._enter()
 
     def _enter(self):
         print(Fore.GREEN + '加载完成，按下任意键进入...', end='')
         input('')
-        print('\n'*10)
+        print('\n'*20)
+        print(Fore.LIGHTCYAN_EX + '-'*10 + '向人工智障提问 ! 直接输入中文句子, 或输入数字1-30' + '-'*10)
         do_exit = False
         while not do_exit:
-            print(Fore.LIGHTCYAN_EX + '-'*10 + '向人工智障提问 ! 直接输入中文句子, 或输入数字1-30' + '-'*10)
             input_str = input(Fore.BLUE + ' YOU > ')
             if len(input_str) < 1:
                 continue
@@ -38,10 +37,10 @@ class InteractiveQA(qa.QA):
         try:
             doc_ids = self.ranker.closest_docs(q, k=5)[0]
         except RuntimeError:
-            print(Fore.RED + ' BOT : 我不明白你在说什么...')
+            print(Fore.RED + ' BOT : 我不明白你在说什么...(无实词)')
             return
         if len(doc_ids) < 1:
-            print(Fore.RED + ' BOT : 触及到了我的知识盲区...')
+            print(Fore.RED + ' BOT : 我不明白你在说什么...(无匹配项)')
             return
 
         if verbose:
@@ -52,15 +51,16 @@ class InteractiveQA(qa.QA):
 
         document_text = self.database.get_doc_text(doc_ids[0])
 
-        if cutoff is not None and len(document_text) > cutoff:
-            print(Fore.RED + ' BOT : 太长了，我只看个开头')
-            document_text = document_text[:cutoff]
-
         if verbose:
             doc_len = len(document_text)
             print('\n' + Fore.LIGHTBLACK_EX + '正在阅读 \"' + self.database.get_doc_title(doc_ids[0]) + '\" ('
-                  + str(doc_len) + ') 以寻找答案...')
-            print(Fore.LIGHTBLACK_EX + '文档正文(节选): ', document_text[:50])
+                  + str(doc_len) + ') 以寻找答案...', end='')
+            print(Fore.LIGHTBLACK_EX + '文档正文(节选): ', document_text[:40])
+
+        if cutoff is not None and len(document_text) > cutoff:
+            if verbose:
+                print(Fore.LIGHTBLACK_EX + '文本较长，做简单截断处理，只读前', cutoff, '个字符')
+            document_text = document_text[:cutoff]
 
         output = self.reader.answer(q, document_text)
         print(Fore.RED + ' BOT : ' + output)

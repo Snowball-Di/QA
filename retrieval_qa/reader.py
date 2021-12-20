@@ -1,7 +1,6 @@
 # coding:utf-8
 from functools import partial
 import torch
-from ltp import LTP
 from tqdm import tqdm
 from transformers import AutoModelForQuestionAnswering, AutoTokenizer
 from transformers.pipelines.question_answering import QuestionAnsweringPipeline as QAPipeline
@@ -68,21 +67,14 @@ def test_models_with_news():
                  '与会者做了什么？',
                  '北理工食堂在哪？']
 
-    # 测试NLP工具包LTP的分词功能
-    # ltp = LTP('base', cache_dir=CACHE_DIR)
-    # seg_result, _ = ltp.seg([document] + questions)  # ltp分词器
-    # print(seg_result)
-
     # 3种模型 创建实例
     roberta_large = Reader(model_name='luhua/chinese_pretrain_mrc_roberta_wwm_ext_large')
     macbert_large = Reader(model_name='luhua/chinese_pretrain_mrc_macbert_large')
-    # albert = Reader(model_name='wptoux/albert-chinese-large-qa')
 
     for i, _q in tqdm(enumerate(questions)):
         print('\n> 问题', i+1, ':', _q)
         print('roberta(1.2G) >', roberta_large.answer(_q, document))
-        # print('macbert(1.2G) >', macbert_large.pipeline_reader(_q, document))
-        # print('albert(60M)   >', albert.pipeline_reader(_q, document))
+        print('macbert(1.2G) >', macbert_large.pipeline_reader(_q, document))
 
 
 if __name__ == '__main__':
