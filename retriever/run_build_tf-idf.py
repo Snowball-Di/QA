@@ -14,10 +14,10 @@ from collections import Counter
 from tqdm import tqdm
 from multiprocessing import Pool as ProcessPool
 
-from . import utils
-from . import data_paths
-from .doc_db import DocDB
-from .mytokenizer import Tokenizer
+from retriever import utils
+from retriever import data_paths
+from retriever import DocDB
+from retriever.mytokenizer import Tokenizer
 
 """构建TF-IDF文档矩阵"""
 
@@ -28,31 +28,30 @@ tokenizer = Tokenizer()
 index2tokens_buffer = {}
 
 
+# def get_tokens_of_doc(doc_index):
+#     """此函数需要按顺序调用"""
+#     # 尝试分词用batch，但是发现速度不会提升
+#     seg_batch_size = 32
+#     global index2tokens_buffer
+#
+#     if doc_index % seg_batch_size == 0:
+#         end_index = min(doc_index+seg_batch_size, len(doc_ids))
+#         docs = [database.get_doc_text(doc_ids[idx]) for idx in range(doc_index, end_index)]
+#         seg_results = tokenizer.tokenize_batch(docs)
+#         # 控制字典不占用太多空间
+#         index2tokens_buffer.clear()
+#         for idx in range(doc_index, end_index):
+#             index2tokens_buffer[idx] = seg_results[idx-doc_index]
+#
+#     tokens = index2tokens_buffer.get(doc_index)
+#     if tokens is None:
+#         raise RuntimeError
+#     else:
+#         return tokens
+
 # ------------------------------------------------------------------------------
 # Build article --> word count sparse matrix.
 # ------------------------------------------------------------------------------
-
-
-def get_tokens_of_doc(doc_index):
-    """此函数需要按顺序调用"""
-    # 尝试分词用batch，但是发现速度不会提升
-    seg_batch_size = 32
-    global index2tokens_buffer
-
-    if doc_index % seg_batch_size == 0:
-        end_index = min(doc_index+seg_batch_size, len(doc_ids))
-        docs = [database.get_doc_text(doc_ids[idx]) for idx in range(doc_index, end_index)]
-        seg_results = tokenizer.tokenize_batch(docs)
-        # 控制字典不占用太多空间
-        index2tokens_buffer.clear()
-        for idx in range(doc_index, end_index):
-            index2tokens_buffer[idx] = seg_results[idx-doc_index]
-
-    tokens = index2tokens_buffer.get(doc_index)
-    if tokens is None:
-        raise RuntimeError
-    else:
-        return tokens
 
 
 def count(ngram, hash_size, doc_id):
@@ -97,7 +96,7 @@ def get_count_matrix(ngram, hash_size):
     workers.close()
     workers.join()
     # ````````````````````````````````````````````````````
-    # 因为要过模型来分词，这一步会非常的慢
+    # 这个是单进程版（因为要过模型来分词，这一步会非常的慢
     # for doc_index in tqdm(range(len(doc_ids)), desc='tokenizing and counting the ngrams', colour='blue'):
     #     _row, _col, _data = count(ngram, hash_size, doc_index)
     #     row.extend(_row)

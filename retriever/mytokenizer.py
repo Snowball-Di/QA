@@ -1,7 +1,4 @@
-
-
-# from ltp import LTP
-# from pkuseg import pkuseg
+# coding:utf-8
 from pyhanlp import HanLP
 
 
