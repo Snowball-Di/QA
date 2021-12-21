@@ -1,2 +1,0 @@
-# QA
-QA system
