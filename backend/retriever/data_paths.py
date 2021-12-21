@@ -6,7 +6,7 @@ import os
 CURRENT_DIR = os.path.split(os.path.realpath(__file__))[0]
 
 # 文档路径 包含若干jsonl文件 增加的文档可直接放进去
-DOCUMENTS_PATH = os.path.join(CURRENT_DIR, 'zh-wiki')
+DOCUMENTS_PATH = os.path.join(CURRENT_DIR, 'customize')
 
 # 文档数据库
 DATABASE_PATH = os.path.join(CURRENT_DIR, 'zh-wiki-docs.db')

@@ -6,7 +6,10 @@
 # LICENSE file in the root directory of this source tree.
 
 import sqlite3
-from . import data_paths
+try:
+    from . import data_paths
+except ImportError:
+    import data_paths
 
 """提供了一个简单的类，封装了读取数据库的操作"""
 

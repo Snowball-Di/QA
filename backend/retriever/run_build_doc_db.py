@@ -28,6 +28,8 @@ logger.addHandler(console)
 converter = OpenCC('t2s.json')
 disambiguation = converter.convert('消歧义')
 
+current_doc_id = 0
+
 
 def preprocess(article):
     """
@@ -39,8 +41,12 @@ def preprocess(article):
     # 标题带[（消歧义）]的
     if disambiguation in article['title']:
         return None
+    global current_doc_id
+    current_doc_id += 1
     # 繁体中文转为简体中文
-    return {'id': article['id'], 'title': converter.convert(article['title']),
+    # return {'id': article['id'], 'title': converter.convert(article['title']),
+    #         'text': converter.convert(article['text'])}
+    return {'id': current_doc_id, 'title': converter.convert(article['title']),
             'text': converter.convert(article['text'])}
 
 

@@ -33,7 +33,7 @@ class InteractiveQA(qa.QA):
             else:
                 self.process(input_str)
 
-    def process(self, q, verbose=False, cutoff=1024):
+    def process(self, q, verbose=True, cutoff=1024):
         try:
             doc_ids = self.ranker.closest_docs(q, k=5)[0]
         except RuntimeError:
@@ -47,7 +47,7 @@ class InteractiveQA(qa.QA):
             print(Fore.LIGHTBLACK_EX + '分词处理', self.tok.tokenize(q).data)
             print(Fore.LIGHTBLACK_EX + '检索到的文档: ', end='')
             for r, did in enumerate(doc_ids):
-                print(str(r+1) + '-' + did + '-\"' + self.database.get_doc_title(did) + '\"', end='   ')
+                print(str(r+1) + '-' + str(did) + '-\"' + self.database.get_doc_title(did) + '\"', end='   ')
 
         document_text = self.database.get_doc_text(doc_ids[0])
 

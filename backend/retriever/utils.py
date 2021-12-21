@@ -11,7 +11,10 @@ import numpy as np
 import scipy.sparse as sp
 from sklearn.utils import murmurhash3_32
 
-from . import data_paths
+try:
+    from . import data_paths
+except ImportError:
+    import data_paths
 
 
 # ------------------------------------------------------------------------------

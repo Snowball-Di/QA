@@ -28,7 +28,7 @@ class Reader:
                                 )
 
     def answer(self, q, doc):
-        """仅返回一个答案字符串"""
+        """仅返回一个答案字符串，测试用"""
         ans = self.pipeline_reader(q, doc, top_k=1)['answer']
         return ans if ans != "" else '不知道'
 
