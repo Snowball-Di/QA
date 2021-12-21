@@ -11,9 +11,9 @@ const routes = [
     component: Home
   },
   {
-    path: '/Docs',
-    name: 'Docs',
-    component:() => import('../views/Docs.vue')
+    path: '/Qas',
+    name: 'Qas',
+    component:() => import('../views/Qas.vue')
   }
   // ,
   // {
