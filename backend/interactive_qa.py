@@ -33,7 +33,7 @@ class InteractiveQA(qa.QA):
             else:
                 self.process(input_str)
 
-    def process(self, q, verbose=True, cutoff=1024):
+    def process(self, q, verbose=False, cutoff=1024):
         try:
             doc_ids = self.ranker.closest_docs(q, k=5)[0]
         except RuntimeError:

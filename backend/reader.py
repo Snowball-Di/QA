@@ -7,6 +7,7 @@ from transformers.pipelines.question_answering import QuestionAnsweringPipeline 
 
 
 CACHE_DIR = './.model_cache'  # 模型下载缓存到的目录
+# 注：这个roberta large还是挺大的，1.2G的缓存
 
 
 class Reader:
