@@ -1,14 +1,15 @@
 # coding:utf-8
 import json
-from colorama import Fore
 
+import requests
+from colorama import Fore
 from flask_cors import CORS
 from flask import Flask, request
 
 from qa import QA
 
 
-def run_server():
+def run_server(port=7982):
     qa_system = QA()
 
     app = Flask(__name__)
@@ -27,8 +28,14 @@ def run_server():
         except Exception as e:
             return json.dumps({'code': 1, 'message': str(e)})
 
-    app.run(host='10.195.48.145', port=7892,)
+    app.run(host='10.62.58.199', port=port,)
+
+
+def send_request():
+    res = requests.post("http://10.195.48.145:7892/api/chat", data=json.dumps({'message': "北理工的校长？"}))
+    print(res.text)
 
 
 if __name__ == '__main__':
     run_server()
+    print('Exited.')

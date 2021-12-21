@@ -9,7 +9,7 @@ CURRENT_DIR = os.path.split(os.path.realpath(__file__))[0]
 DOCUMENTS_PATH = os.path.join(CURRENT_DIR, 'customize')
 
 # 文档数据库
-DATABASE_PATH = os.path.join(CURRENT_DIR, 'zh-wiki-docs.db')
+DATABASE_PATH = os.path.join(CURRENT_DIR, 'bit-docs.db')
 
 # TF-IDF稀疏矩阵
 DOCS_TFIDF_PATH = os.path.join(CURRENT_DIR, 'docs-tf-idf.npz')

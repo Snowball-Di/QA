@@ -1,4 +1,4 @@
-"""检查是不是有哈希冲突导致了检索出错"""
+"""简单的脚本检查是不是有哈希冲突导致了检索出错"""
 
 from retriever import DocDB
 from retriever import utils

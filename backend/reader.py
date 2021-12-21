@@ -20,7 +20,7 @@ class Reader:
         # 使用偏函数固定一部分参数，可以在调用时的kwargs里覆盖其中的任何一个
         self.pipeline = partial(self._hugging_face_pipeline,
                                 top_k=2,  # 默认值是1
-                                doc_stride=128,  # 默认值是128
+                                doc_stride=192,  # 默认值是128
                                 max_answer_len=128,  # 默认值是15
                                 max_seq_len=384,  # 默认值是384
                                 max_question_len=64,  # 默认值是64
@@ -68,14 +68,15 @@ def test_models_with_news():
                  '与会者做了什么？',
                  '北理工食堂在哪？']
 
-    # 3种模型 创建实例
+    # 加载模型
     roberta_large = Reader(model_name='luhua/chinese_pretrain_mrc_roberta_wwm_ext_large')
     macbert_large = Reader(model_name='luhua/chinese_pretrain_mrc_macbert_large')
 
+    print('已知文档：\n', document)
     for i, _q in tqdm(enumerate(questions)):
         print('\n> 问题', i+1, ':', _q)
         print('roberta(1.2G) >', roberta_large.answer(_q, document))
-        print('macbert(1.2G) >', macbert_large.pipeline_reader(_q, document))
+        print('macbert(1.2G) >', macbert_large.answer(_q, document))
 
 
 if __name__ == '__main__':
