@@ -1,0 +1,1 @@
+declare module 'ttzxh-vue-live2d'

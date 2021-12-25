@@ -65,7 +65,7 @@ export default {
             console.log(res.data.results);
             this.messages.push({
               user: 1,
-              content: "你的问题我暂时理解不了哦 : )",
+              content: "你的问题我暂时理解不了哦...",
             });
           }
         })
@@ -89,6 +89,7 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
+  background-color: rgb(245, 245, 245);
 }
 
 .messages {
@@ -100,18 +101,20 @@ export default {
     &.user0 {
       float: right;
       margin-right: 10px;
+      background-color: rgb(158, 234, 106);
     }
     &.user1 {
       float: left;
+      margin-left: 10px;
+      background-color: white;
     }
-    padding: 5px 15px 6px;
+    padding: 8px 18px 10px;
     max-width: 300px;
-    border: 1px solid #2d8cf0;
-    border-radius: 4px;
+    border-radius: 6px;
     clear: both;
-    color: #2d8cf0;
-    font-size: 13px;
-    margin: 2px 0;
+    color: black;
+    font-size: 16px;
+    margin: 5px 0;
   }
 }
 </style>

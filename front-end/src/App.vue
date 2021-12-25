@@ -1,7 +1,7 @@
 <template>
   <el-container>
     <el-header>
-      <el-card>
+      <el-card class="head">
         <span class="title">📣QA System</span>
 
         <el-tag>
@@ -17,6 +17,7 @@
         @live2dItemEnter="live2dItemEnter"
         ref="aaa"
         :className="className"
+        style="z-index: 10"
       ></live2d>
       <el-main>
         <!-- <el-drawer :visible.sync="drawer" direction="ltr" :show-close="false">
@@ -27,7 +28,9 @@
     </el-drawer> -->
 
         <transition name="fade-transform" mode="out-in">
-          <router-view />
+          <keep-alive>
+            <router-view></router-view>
+          </keep-alive>
         </transition>
       </el-main>
     </el-container>
@@ -78,9 +81,10 @@ export default {
 .el-tag {
   position: relative;
   margin-left: 20px;
+  font-size: 14px;
 }
 
-.el-card {
+.head {
   margin: 0 auto;
   position: relative;
 }
