@@ -4,6 +4,7 @@ import router from './router'
 import './plugins/element.js'
 import live2d from 'ttzxh-vue-live2d'
 import live2dcss from '../node_modules/ttzxh-vue-live2d/dist/ttzxh-vue-live2d.css'
+import store from './store'
 
 Vue.config.productionTip = false
 Vue.use(live2d)
@@ -11,5 +12,6 @@ Vue.use(live2dcss)
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')
