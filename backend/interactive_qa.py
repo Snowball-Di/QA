@@ -16,7 +16,7 @@ class InteractiveQA(qa.QA):
         print(Fore.GREEN + '加载完成，按下任意键进入...', end='')
         input('')
         print('\n'*20)
-        print(Fore.LIGHTCYAN_EX + '-'*10 + '向人工智障提问 ! 直接输入中文句子, 或输入数字1-30' + '-'*10)
+        print(Fore.LIGHTCYAN_EX + '-'*10 + '向人工智障提问 ! ' + '-'*10)
         do_exit = False
         while not do_exit:
             input_str = input(Fore.BLUE + ' YOU > ')
@@ -26,7 +26,9 @@ class InteractiveQA(qa.QA):
                 print(Fore.RED + ' BOT : 再见，祝您学业顺利~')
                 do_exit = True
             else:
-                self.process(input_str)
+                print(self.__call__(input_str))
+            # else:
+            #     self.process(input_str)
 
     def process(self, q, verbose=True, cutoff=None):
         try:

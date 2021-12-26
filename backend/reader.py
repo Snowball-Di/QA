@@ -16,7 +16,10 @@ class Reader:
         print('正在载入模型', model_name, ', 这需要一些时间...')
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=CACHE_DIR)
         self.model = AutoModelForQuestionAnswering.from_pretrained(model_name, cache_dir=CACHE_DIR)
-        self._hugging_face_pipeline = QAPipeline(model=self.model, tokenizer=self.tokenizer)
+        device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+        self.model.to(device)
+        device_num = 0 if torch.cuda.is_available() else -1
+        self._hugging_face_pipeline = QAPipeline(model=self.model, tokenizer=self.tokenizer, device=device_num)
         # 使用偏函数固定一部分参数，可以在调用时的kwargs里覆盖其中的任何一个
         self.pipeline = partial(self._hugging_face_pipeline,
                                 top_k=2,  # 默认值是1

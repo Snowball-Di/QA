@@ -9,7 +9,7 @@ from flask import Flask, request
 from qa import QA
 
 
-def run_server(port=7982):
+def run_server(host=None, port=7982):
     qa_system = QA()
 
     app = Flask(__name__)
@@ -24,18 +24,20 @@ def run_server(port=7982):
                 query = inputs['message']
             else:
                 query = request.args.get('query')
-            return json.dumps({'code': 0, 'results': qa_system(query)}, ensure_ascii=False)
+            answer = qa_system(query)
+            print('[log] query:', query, 'answer:', answer)
+            return json.dumps({'code': 0, 'results': answer}, ensure_ascii=False)
         except Exception as e:
             return json.dumps({'code': 1, 'message': str(e)})
 
-    app.run(host='10.62.58.199', port=port,)
+    app.run(host=host, port=port)
 
 
-def send_request():
-    res = requests.post("http://10.195.48.145:7892/api/chat", data=json.dumps({'message': "北理工的校长？"}))
+def send_request_example():
+    res = requests.post("http://localhost:7982/api/chat", data=json.dumps({'message': "北理工的校长？"}))
     print(res.text)
 
 
 if __name__ == '__main__':
-    run_server()
+    run_server(host='10.195.86.205')
     print('Exited.')
