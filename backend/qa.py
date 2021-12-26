@@ -20,12 +20,18 @@ class QA:
 
         document = ""
         # 将文章进行拼接，若超长则做截断
+        print('文档检索结果:', end='')
         for doc_id in doc_ids:
             document += self.database.get_doc_title(doc_id) + "。" + self.database.get_doc_text(doc_id)
+            print(self.database.get_doc_title(doc_id), end=',')
             if len(document) > cutoff:
+                document = document[:cutoff]
                 break
 
         outputs = self.reader.pipeline_reader(question, document, top_k=1)
+
+        print(';答案抽取上下文:', document[outputs['start']-25:outputs['end']+25])
+
         answer = outputs['answer'] if outputs['answer'] != "" else "不知道"
         return answer
 

@@ -63,7 +63,10 @@ class Reader:
 
 def test_models_with_news():
     document = """11月19日上午，学校召开第一届校务委员会第一次会议。校党委书记、校务委员会主任赵长禄，常务副校长、校务委员会副主任龙腾，校务委员会副主任胡海岩、李和章、杨志宏、方岱宁出席会议，第一届校务委员会委员参加会议。会议由龙腾主持。龙腾介绍了2021年学校事业发展情况和学校“十四五”科技工作设想。与会委员围绕介绍内容进行交流发言，并就人才培养、学科布局、队伍建设、科技创新、校地合作等方面提出了意见和建议。"""
-    questions = ['主持人说了什么？',
+    questions = [
+                 '主持人说了什么？',
+                 '这次会议的主持人是谁？',
+                 '第一届校务委员会第一次会议是什么时候召开的？',
                  '这次会议是哪个组织召开的？',
                  '谁召开的会？',
                  '谁出席了11月19日的会议？',
@@ -73,15 +76,15 @@ def test_models_with_news():
 
     # 加载模型
     roberta_large = Reader(model_name='luhua/chinese_pretrain_mrc_roberta_wwm_ext_large')
-    macbert_large = Reader(model_name='luhua/chinese_pretrain_mrc_macbert_large')
+    # macbert_large = Reader(model_name='luhua/chinese_pretrain_mrc_macbert_large')
 
     print('已知文档：\n', document)
-    for i, _q in tqdm(enumerate(questions)):
+    for i, _q in enumerate(questions):
         print('\n> 问题', i+1, ':', _q)
         print('roberta(1.2G) >', roberta_large.answer(_q, document))
-        print('macbert(1.2G) >', macbert_large.answer(_q, document))
+        # print('macbert(1.2G) >', macbert_large.answer(_q, document))
 
 
 if __name__ == '__main__':
-    pass
-    # test_models_with_news()
+    # pass
+    test_models_with_news()
