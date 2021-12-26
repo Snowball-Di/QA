@@ -1,5 +1,5 @@
 <template>
-  <el-carousel height="500px" interval="3000" indicator-position="outside">
+  <el-carousel height="500px" interval="5000" indicator-position="outside">
     <el-carousel-item>
       <el-card class="displayinfo">
         <span>本系统作者：habareraa, Snowball, Carl-Carl, CZY。 </span>

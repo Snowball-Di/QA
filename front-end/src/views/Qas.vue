@@ -67,9 +67,14 @@ export default {
               user: 1,
               content: "你的问题我暂时理解不了哦...",
             });
+            this.pending = false;
           }
         })
         .catch(() => {
+            this.messages.push({
+              user: 1,
+              content:"发生了一些未知错误，稍后再试哦...",
+            });
           this.pending = false;
         });
     },
