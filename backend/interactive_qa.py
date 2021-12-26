@@ -25,6 +25,7 @@ class InteractiveQA(qa.QA):
             if input_str in ['exit', '再见', 'bye', 'goodbye']:
                 print(Fore.RED + ' BOT : 再见，祝您学业顺利~')
                 do_exit = True
+            # -----------------
             else:
                 print(self.__call__(input_str))
             # else:

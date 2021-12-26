@@ -1,6 +1,5 @@
 # coding:utf-8
 import json
-
 import requests
 from colorama import Fore
 from flask_cors import CORS

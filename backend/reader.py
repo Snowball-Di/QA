@@ -83,4 +83,5 @@ def test_models_with_news():
 
 
 if __name__ == '__main__':
-    test_models_with_news()
+    pass
+    # test_models_with_news()
