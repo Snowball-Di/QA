@@ -13,10 +13,7 @@
 
     <el-container>
       <live2d
-        @live2dItemClick="live2dItemClick"
-        @live2dItemEnter="live2dItemEnter"
         ref="aaa"
-        :className="className"
         style="z-index: 10"
       ></live2d>
       <el-main>
@@ -40,24 +37,7 @@
 <script>
 export default {
   name: "app",
-  components: {},
-  mounted() {
-    setTimeout(() => {
-      window.L2Dwidget.init({
-        pluginRootPath: "../public/live2dw/",
-        pluginJsPath: "lib/",
-        pluginModelPath: "live2d-widget-model-z16/assets/",
-        tagMode: false,
-        debug: false,
-        model: {
-          jsonPath: "../live2dw/live2d-widget-model-z16/assets/z16.model.json",
-        },
-        display: { position: "left", width: 100, height: 200 },
-        mobile: { show: true },
-        log: false,
-      });
-    }, 1000);
-  },
+  components: {}
 };
 </script>
 
