@@ -12,7 +12,7 @@ DOCUMENTS_PATH = os.path.join(CURRENT_DIR, 'customize')
 DATABASE_PATH = os.path.join(CURRENT_DIR, 'zh-wiki-docs.db')
 
 # TF-IDF稀疏矩阵
-DOCS_TFIDF_PATH = os.path.join(CURRENT_DIR, 'docs-tf-idf.npz')
+DOCS_TFIDF_PATH = os.path.join(CURRENT_DIR, 'docs-tf-idf(hash_size_2_26).npz')
 
 # 中文停用词
 ZH_STOPWORDS = os.path.join(CURRENT_DIR, 'stopwords.json')
