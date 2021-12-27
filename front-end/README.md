@@ -23,6 +23,8 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
+### Source Structure
+
 └── qa                      #前端目录结构
   └── front-end
     ├── .gitignore
