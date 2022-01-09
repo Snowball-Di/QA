@@ -27,44 +27,42 @@
     <div class="records-buttons" style="margin: 5px">
       <el-button
         type="success"
-        size="medium"
+        size="small"
         @click="getPermission()"
         style="margin: 5px"
-        >获取麦克权限</el-button
+        >录音权限</el-button
       >
       <el-button
         type="info"
-        size="medium"
+        size="small"
         @click="startRecorder()"
         style="margin: 5px"
         >开始录音</el-button
       >
       <el-button
         type="info"
-        size="medium"
+        size="small"
         @click="stopRecorder()"
         style="margin: 5px"
         >结束录音</el-button
       >
-
-      <br />
       <el-button
         type="primary"
-        size="medium"
+        size="small"
         @click="playRecorder()"
         style="margin: 5px"
         >录音播放</el-button
       >
       <el-button
         type="danger"
-        size="medium"
+        size="small"
         @click="destroyRecorder()"
         style="margin: 5px"
         >销毁录音</el-button
       >
       <el-button
         type="success"
-        size="medium"
+        size="small"
         @click="recognize()"
         style="margin: 5px"
         >识别</el-button
@@ -110,6 +108,12 @@ export default {
   },
   components: {},
   methods: {
+    girlsay(text) {
+      this.$emit("girlsay", text);
+    },
+    girlmessage(text) {
+      this.$emit("girlmessage", text);
+    },
     downloadPcm() {
       recorder.downloadWAV();
     },
@@ -124,9 +128,13 @@ export default {
             if (!res.data.code) {
               console.log(res.data.results);
               this.input += res.data.results;
+              this.girlmessage("你看我听得对吗，听错了也不能怪我哦~");
             } else {
               // todo 错误识别处理
               console.log(res.data.results);
+              this.girlmessage(
+                "也许是你们人类的声音太难懂了，或者，是我的问题吗...我没有听出来"
+              );
             }
           })
           .catch(() => {
@@ -135,6 +143,7 @@ export default {
               content: "发生了一些未知错误，稍后再试哦...",
             });
             this.pending = false;
+            this.girlmessage("可能有一些错误，我也不知道怎么办...");
           });
       }
     },
@@ -169,11 +178,13 @@ export default {
       recorder.stop();
       this.drawRecordId && cancelAnimationFrame(this.drawRecordId);
       this.drawRecordId = null;
+      this.girlmessage("你的声音还挺好听的呢~");
     },
     // 录音播放
     playRecorder() {
       recorder.play();
       this.drawPlay(); //绘制波浪图
+      this.girlmessage("这就是现实中天生人类的声音吗~");
     },
     // 销毁录音
     destroyRecorder() {
@@ -291,28 +302,24 @@ export default {
       sendMessage(this.senderId, msg)
         .then((res) => {
           if (!res.data.code) {
-            console.log(res.data.results);
+            console.log(res.data.text);
             this.messages.push({
               user: 1,
-              content: res.data.results,
+              content: res.data.text,
             });
             this.pending = false;
-            //TODO 语音输出
-            let audio_byte = res.data.byte;
-            (bstr = Buffer.from(audio_byte, "base64")),
-              (n = bstr.length),
-              (u8arr = new Uint8Array(n));
-            while (n--) {
-              u8arr[n] = bstr.charCodeAt(n);
-            }
-            return new Blob([u8arr], { type: mime });
+            //TODO 语音输出 测试
+            url = "data:audio/mp3;base64," + res.data.audio;
+            let audio = new Audio(res.data.audio);
+            audio.play();
           } else {
-            console.log(res.data.results);
+            console.log(res.data.text);
             this.messages.push({
               user: 1,
               content: "你的问题我暂时理解不了哦...",
             });
             this.pending = false;
+            this.girlmessage("看来这个系统还没我聪明嘛~");
           }
         })
         .catch(() => {
@@ -321,6 +328,7 @@ export default {
             content: "发生了一些未知错误，稍后再试哦...",
           });
           this.pending = false;
+          this.girlmessage("我想这里可能有一些错误，我也不知道怎么办才好了~");
         });
     },
     getMsg(msg) {
@@ -335,11 +343,14 @@ export default {
 
 <style lang="scss" scoped>
 .qapage {
-  height: 650px;
+  height: 600px;
   position: relative;
   display: flex;
   flex-direction: column;
   background-color: rgb(245, 245, 245);
+}
+.records-buttons {
+  text-align: center;
 }
 .canvas {
   position: relative;
