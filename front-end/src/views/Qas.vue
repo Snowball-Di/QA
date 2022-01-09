@@ -297,6 +297,15 @@ export default {
               content: res.data.results,
             });
             this.pending = false;
+            //TODO 语音输出
+            let audio_byte = res.data.byte;
+            (bstr = Buffer.from(audio_byte, "base64")),
+              (n = bstr.length),
+              (u8arr = new Uint8Array(n));
+            while (n--) {
+              u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
           } else {
             console.log(res.data.results);
             this.messages.push({

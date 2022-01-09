@@ -91,6 +91,8 @@
 </template>
 
 <script>
+import { sendphoto } from "@/api";
+
 export default {
   name: "app",
   data() {
@@ -155,13 +157,59 @@ export default {
           console.log(err);
         });
     },
+    dataURLtoBlob(dataurl) {
+      var arr = dataurl.split(","),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = Buffer.from(arr[1], "base64"),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime });
+    },
     takephoto() {
       //点击拍照截图画面
       let that = this;
       that.photo.getContext("2d").drawImage(this.video, 0, 0, 300, 225);
-      let dataurl = that.photo.toDataURL("image/jpeg");
-      that.blobFile = that.dataURLtoFile(dataurl, "camera.jpg");
+      let dataurl = that.photo.toDataURL("image/jpeg", 1.0);
+      that.blobFile = this.dataURLtoBlob(dataurl);
       that.preViewVisible = true;
+    },
+    uploadphoto() {
+      if (!this.blobFile) return;
+      else {
+        sendphoto(this.blobFile)
+          .then((res) => {
+            if (!res.data.code) {
+              console.log(res.data.results);
+              // TODO 接入虚拟形象行为
+
+              this.$confirm("你长得真好看啊", "Hello", {
+                distinguishCancelAndClose: true,
+                confirmButtonText: "是的呢",
+                cancelButtonText: "我也这么觉得",
+              });
+            } else {
+              this.$confirm(
+                "并没有看见你的人呢，可能出现了一些问题",
+                "出现了意外",
+                {
+                  distinguishCancelAndClose: true,
+                  confirmButtonText: "关闭",
+                }
+              );
+              console.log(res.data.results);
+            }
+          })
+          .catch(() => {
+            this.messages.push({
+              user: 1,
+              content: "发生了一些未知错误，稍后再试哦...",
+            });
+            this.pending = false;
+          });
+      }
     },
   },
   components: {},
