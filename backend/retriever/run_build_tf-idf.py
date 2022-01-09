@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
-# Copyright 2017-present, Facebook, Inc.
-# All rights reserved.
-#
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-# 这个文件基本被我从头魔改到尾了
+# coding: utf-8
 from functools import partial
 
 import numpy as np
@@ -28,27 +22,6 @@ tokenizer = Tokenizer()
 index2tokens_buffer = {}
 
 
-# def get_tokens_of_doc(doc_index):
-#     """此函数需要按顺序调用"""
-#     # 尝试分词用batch，但是发现速度不会提升
-#     seg_batch_size = 32
-#     global index2tokens_buffer
-#
-#     if doc_index % seg_batch_size == 0:
-#         end_index = min(doc_index+seg_batch_size, len(doc_ids))
-#         docs = [database.get_doc_text(doc_ids[idx]) for idx in range(doc_index, end_index)]
-#         seg_results = tokenizer.tokenize_batch(docs)
-#         # 控制字典不占用太多空间
-#         index2tokens_buffer.clear()
-#         for idx in range(doc_index, end_index):
-#             index2tokens_buffer[idx] = seg_results[idx-doc_index]
-#
-#     tokens = index2tokens_buffer.get(doc_index)
-#     if tokens is None:
-#         raise RuntimeError
-#     else:
-#         return tokens
-
 # ------------------------------------------------------------------------------
 # Build article --> word count sparse matrix.
 # ------------------------------------------------------------------------------
@@ -59,9 +32,10 @@ def count(ngram, hash_size, doc_id):
     # doc_id = doc_ids[doc_index]
     global doc2index
     doc_index = doc2index[doc_id]
-    row, col, data = [], [], []
-    title_repeat = (str(database.get_doc_title(doc_id)) + '。') * 3
-    tokens = tokenizer.tokenize(title_repeat + database.get_doc_text(doc_id))
+    doc_text = database.get_doc_text(doc_id)
+    # 统计时重复标题以强调标题的关键词。重复次数根据文本长度决定
+    title_repeat = str(database.get_doc_title(doc_id) + '。') * int(len(doc_text) // 50 + 1)
+    tokens = tokenizer.tokenize(title_repeat + doc_text)
     # tokens = get_tokens_of_doc(doc_index)
 
     # Get ngrams from tokens, with stopwords/punctuation filtering.
@@ -71,6 +45,7 @@ def count(ngram, hash_size, doc_id):
     counts = Counter([utils.token_hash(gram, hash_size) for gram in all_ngrams])
 
     # Return in sparse matrix data format.
+    row, col, data = [], [], []
     row.extend(counts.keys())
     col.extend([doc_index] * len(counts))
     data.extend(counts.values())
@@ -84,8 +59,8 @@ def get_count_matrix(ngram, hash_size):
     """
     row, col, data = [], [], []
     # 分batch多进程，不加多进程的版本在下面的注释里
-    workers = ProcessPool(4)
-    step = 4096  # 一个batch
+    workers = ProcessPool(2)
+    step = 1024  # 一个batch
     batches = [doc_ids[i:i + step] for i in range(0, len(doc_ids), step)]
     _count = partial(count, ngram, hash_size)
     for batch in tqdm(batches, desc='tokenizing and counting the ngrams', colour='blue'):
@@ -143,6 +118,7 @@ def get_doc_freqs(cnt_matrix):
 if __name__ == '__main__':
     ngrams = 2  # 论文给的推荐，并不打算修改它
     hash_bucket_size = int(math.pow(2, 24))  # 这是把ngram散列到索引值时，对它取模，以控制矩阵的规模，2^24约为一千六百万
+    print('构建TF-IDF词袋矩阵. shape:', hash_bucket_size, len(doc_ids))
 
     # 统计ngram个数，返回count矩阵
     count_matrix, doc_dict = get_count_matrix(ngrams, hash_bucket_size)
@@ -150,7 +126,7 @@ if __name__ == '__main__':
     tfidf = get_tfidf_matrix(count_matrix)
     freqs = get_doc_freqs(count_matrix)
 
-    print('Saving to %s' % data_paths.DOCS_TFIDF_PATH)
+    print('保存至文件 %s' % data_paths.DOCS_TFIDF_PATH)
     metadata = {
         'doc_freqs': freqs,
         'hash_size': hash_bucket_size,

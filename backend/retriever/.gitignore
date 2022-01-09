@@ -1,5 +1,1 @@
-# 中文维基数据
-zh-wiki/
-
-*.db
-*.npz
+data/

@@ -76,7 +76,7 @@ class Tokenizer:
 #         return [Tokens(seg_words) for seg_words in seg_words_list]
 
 
-#用法
+# 用法
 # tok = Tokenizer()
 # tokens = tok.tokenize('习近平 '*10)
 # print()

@@ -11,7 +11,7 @@ try:
 except ImportError:
     import data_paths
 
-"""提供了一个简单的类，封装了读取数据库的操作"""
+"""提供DocDB类,封装数据库的操作"""
 
 
 class DocDB(object):

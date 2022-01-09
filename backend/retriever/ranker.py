@@ -25,7 +25,7 @@ class TfidfDocRanker(object):
         """
         # 读取稀疏矩阵的npz文件，载入数据
         path = tfidf_path if tfidf_path is not None else data_paths.DOCS_TFIDF_PATH
-        print('正在载入文档', path, '这需要一些时间...')
+        print('正在载入', path, '这需要一些时间...')
         matrix, metadata = utils.load_sparse_csr(path)
         self.doc_mat = matrix
         print('csr matrix shape:', self.doc_mat.shape)
@@ -112,10 +112,14 @@ class TfidfDocRanker(object):
 
 if __name__ == '__main__':
     # 测试检索效果，返回top10文档
+    test_query = '北理工的校长是谁？'
     ranker = TfidfDocRanker()
-    result = ranker.closest_docs('哔哩哔哩动画', k=10)
+
     database = DocDB()
 
-    for i in range(10):
-        print('\ndocument rank', i+1, ' 文档标题:', database.get_doc_title(result[0][i]))
-        print('正文：', database.get_doc_text(result[0][i]))
+    for topk in range(1, 11):
+        result = ranker.closest_docs(test_query, k=topk)
+        print('\n检索前', topk, '篇文档的标题为: ', end=' ')
+        for i in range(len(result[0])):
+            print(i, database.get_doc_title(result[0][i]), result[1][i], end='. ')
+            # print('正文：', database.get_doc_text(result[0 ][i]))

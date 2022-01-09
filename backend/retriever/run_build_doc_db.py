@@ -1,12 +1,4 @@
-#!/usr/bin/env python3
-# Copyright 2017-present, Facebook, Inc.
-# All rights reserved.
-#
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-"""读取jsonl文本，以id-text的形式储存到数据库"""
-# 这个文件基本被我从头魔改到尾了
-
+# coding: utf-8
 import sqlite3
 import json
 import os
@@ -28,31 +20,34 @@ logger.addHandler(console)
 converter = OpenCC('t2s.json')
 disambiguation = converter.convert('消歧义')
 
-current_doc_id = 0
+current_id = 0
+passage_len_dict = {}
 
 
 def preprocess(article):
-    """
-    用于清洗文本的函数，输入为单行json解析后的对象
-    """
     # 有很多没有正文的页面，丢弃
     if article['text'] == '':
         return None
-    # 标题带[（消歧义）]的
+    # 标题带"（消歧义）"的
     if disambiguation in article['title']:
         return None
-    global current_doc_id
-    current_doc_id += 1
     # 繁体中文转为简体中文
-    # return {'id': article['id'], 'title': converter.convert(article['title']),
-    #         'text': converter.convert(article['text'])}
-    return {'id': current_doc_id, 'title': converter.convert(article['title']),
-            'text': converter.convert(article['text'])}
+    # passage_title = article['title']
+    # passage_text = article['text']
+    passage_title = converter.convert(article['title'])
+    passage_text = converter.convert(article['text'])
 
+    # # 用于统计文章长度分布
+    # global passage_len_dict
+    # if passage_len_dict.get(int(len(passage_text))) is None:
+    #     passage_len_dict[int(len(passage_text))] = 1
+    # else:
+    #     passage_len_dict[int(len(passage_text))] = passage_len_dict[int(len(passage_text))] + 1
 
-# ------------------------------------------------------------------------------
-# Store corpus.
-# ------------------------------------------------------------------------------
+    global current_id
+    current_id += 1
+
+    return {'id': current_id, 'title': passage_title, 'text': passage_text}
 
 
 def iter_files(path):
@@ -73,11 +68,24 @@ def get_contents(filename):
     documents = []
     with open(filename, 'r', encoding='utf-8') as f:
         for line in f:
-            doc = preprocess(json.loads(line))
-            if not doc:
-                continue
-            # Add the document
-            documents.append((doc['id'], doc['title'], doc['text']))
+            doc = json.loads(line)
+            # 按换行符进行拆分
+            paragraphs = doc['text'].split('\n')
+            # 超出一定长度的拆为两篇
+            cut = []
+            for paragraph in paragraphs:
+                while len(paragraph) > 700:
+                    cut.append(paragraph[:700])
+                    paragraph = paragraph[700:]
+                cut.append(paragraph)
+            # 遍历拆分后的段落
+            for paragraph in cut:
+                # 将标题和拆分段落 送预处理函数
+                ret = preprocess({'title': doc['title'], 'text': paragraph})
+                if not ret:
+                    continue
+                # 保存三元组
+                documents.append((ret['id'], ret['title'], ret['text']))
     return documents
 
 
@@ -89,6 +97,7 @@ def store_contents(data_path, save_path, num_workers=1):
           containing json encoded documents (must have `id` and `text` fields).
         save_path: Path to output sqlite db.
         num_workers: Number of parallel processes to use when reading docs.
+        因为编制id作为数据库主键，会涉及到进程同步问题，因为我不想去查怎么用semaphor同步进程了，所以干脆就别整了
     """
     if os.path.isfile(save_path):
         raise RuntimeError('%s already exists! Not overwriting.' % save_path)
@@ -101,11 +110,19 @@ def store_contents(data_path, save_path, num_workers=1):
     workers = ProcessPool(num_workers)
     files = [f for f in iter_files(data_path)]
     count = 0
-    with tqdm(total=len(files)) as pbar:
-        for tuples in workers.imap_unordered(get_contents, files):
+    with tqdm(total=len(files), colour='green') as bar:
+        # multi process:
+        # for tuples in workers.imap_unordered(get_contents, files):
+        #     count += len(tuples)
+        #     c.executemany("INSERT INTO documents VALUES (?,?,?)", tuples)
+        #     bar.update()
+        # single process:
+        for filename in files:
+            tuples = get_contents(filename)
             count += len(tuples)
             c.executemany("INSERT INTO documents VALUES (?,?,?)", tuples)
-            pbar.update()
+            bar.update()
+
     logger.info('Read %d docs.' % count)
     logger.info('Committing...')
     conn.commit()
@@ -114,3 +131,6 @@ def store_contents(data_path, save_path, num_workers=1):
 
 if __name__ == '__main__':
     store_contents(data_paths.DOCUMENTS_PATH, data_paths.DATABASE_PATH, num_workers=4)
+
+    # with open('save.json', 'w') as f:
+    #     f.write(json.dumps(passage_len_dict))

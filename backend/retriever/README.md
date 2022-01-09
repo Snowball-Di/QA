@@ -16,7 +16,7 @@
 
 `mytokenizer` 其一是为了统一各处的分词，有一个Tokenizer类，其二提供了tokens的ngram方法
 
-## :star: 数据文件
+## :star: 数据文件./data/
 
 zh-wiki/目录下是繁体中文维基百科数据，jsonl格式
 
