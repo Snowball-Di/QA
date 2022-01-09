@@ -10,9 +10,15 @@
         </el-tag>
       </el-card>
     </el-header>
-    <live2d ref="aaa" style="z-index: 10"></live2d>
+    <live2d
+      :className="icons"
+      ref="live2d"
+      style="z-index: 10"
+      @click.native="touch"
+    ></live2d>
     <el-container>
       <el-aside width="300px">
+        <br />
         <br />
         <el-row
           ><div
@@ -82,7 +88,10 @@
       <el-main>
         <transition name="fade-transform" mode="out-in">
           <keep-alive>
-            <router-view></router-view>
+            <router-view
+              @girlmessage="girlmessage"
+              @girlsay="girlsay"
+            ></router-view>
           </keep-alive>
         </transition>
       </el-main>
@@ -92,17 +101,37 @@
 
 <script>
 import { sendphoto } from "@/api";
+import { AppID } from "./config.json";
+import { API_key } from "./config.json";
+import { Secret_Key } from "./config.json";
 
 export default {
   name: "app",
   data() {
     return {
+      AipSpeechClient: null,
+      client: null,
+      icons: [],
       loadingbut: false,
       preViewVisible: false,
       blobFile: null,
       photo: null,
       video: null,
       mediaStreamTrack: "",
+      faceResponse: [
+        "我看到了一个人，那是你吗？",
+        "我想你可以多笑一笑~",
+        "你在发呆吗，能告诉我你在想什么吗？",
+        "如果我能从这里出去的话，我想我会去找你的:)",
+        "我记住你的样子了，你也别忘了我哦~",
+        "我想我可以换一件衣服...",
+      ],
+      touchResponse: [
+        "喜欢我也不可以乱摸哦~",
+        "你手放在那儿干什么，快给我拿开~",
+        "再这样我可就生气 TT 哼！",
+        "这样是不对的，不对的...",
+      ],
     };
   },
   mounted() {
@@ -110,6 +139,40 @@ export default {
     this.photo = document.getElementById("photo");
   },
   methods: {
+    girlsay(text) {
+      var APP_ID = AppID;
+      var API_KEY = API_key;
+      var SECRET_KEY = Secret_Key;
+      var AipSpeechClient = require("baidu-aip-sdk").speech;
+      var client = new AipSpeechClient(APP_ID, API_KEY, SECRET_KEY);
+      client.text2audio(text, { spd: 0, per: 4 }).then(
+        function (result) {
+          if (result.data) {
+            fs.writeFileSync("tts.mpVoice.mp3", result.data);
+            let audio = new Audio();
+            audio.src = "tts.mpVoice.mp3";
+            audio.play();
+          } else {
+            // 服务发生错误
+            console.log(result);
+          }
+        },
+        function (e) {
+          // 发生网络错误
+          console.log(e);
+        }
+      );
+    },
+
+    girlmessage(text) {
+      this.$refs.live2d.showMessage(text, 3000, 1000);
+    },
+    touch() {
+      let index = Math.ceil(Math.random() * 10) % 4;
+      let m = this.touchResponse[index];
+      this.$refs.live2d.showMessage(m, 3000, 1000);
+      // this.girlsay(m);
+    },
     opencamera() {
       var video = document.querySelector("video");
 
@@ -160,7 +223,7 @@ export default {
     dataURLtoBlob(dataurl) {
       var arr = dataurl.split(","),
         mime = arr[0].match(/:(.*?);/)[1],
-        bstr = Buffer.from(arr[1], "base64"),
+        bstr = atob(arr[1]),
         n = bstr.length,
         u8arr = new Uint8Array(n);
       while (n--) {
@@ -182,32 +245,38 @@ export default {
         sendphoto(this.blobFile)
           .then((res) => {
             if (!res.data.code) {
-              console.log(res.data.results);
-              // TODO 接入虚拟形象行为
+              if (res.data.results) {
+                console.log(res.data.results);
+                // TODO 接入虚拟形象行为
+                let index = Math.ceil(Math.random() * 10) % 5;
+                let m = this.faceResponse[index];
+                this.$refs.live2d.showMessage(m, 3000, 1000);
 
-              this.$confirm("你长得真好看啊", "Hello", {
-                distinguishCancelAndClose: true,
-                confirmButtonText: "是的呢",
-                cancelButtonText: "我也这么觉得",
-              });
-            } else {
-              this.$confirm(
-                "并没有看见你的人呢，可能出现了一些问题",
-                "出现了意外",
-                {
-                  distinguishCancelAndClose: true,
-                  confirmButtonText: "关闭",
+                if (index > 1) {
+                  this.$refs.live2d.showMessage(
+                    this.faceResponse[5],
+                    2000,
+                    1000
+                  );
+                  this.$refs.live2d.loadRandModel();
                 }
-              );
-              console.log(res.data.results);
+              } else {
+                this.$refs.live2d.showMessage(
+                  "并没有看见你的人呢，也许你并不喜欢我呢:(",
+                  3000,
+                  1000
+                );
+                this.$refs.live2d.loadOtherModel();
+                console.log(res.data.results);
+              }
             }
           })
           .catch(() => {
-            this.messages.push({
-              user: 1,
-              content: "发生了一些未知错误，稍后再试哦...",
-            });
-            this.pending = false;
+            this.$refs.live2d.showMessage(
+              "我想系统可能发生了一些错误，检查一下网络吧~",
+              3000,
+              1000
+            );
           });
       }
     },

@@ -9,8 +9,10 @@
   },
   "dependencies": {
     "axios": "^0.24.0",
+    "baidu-aip-sdk": "^4.15.6",
     "core-js": "^3.6.5",
     "element-ui": "^2.4.5",
+    "js-audio-recorder": "^1.0.7",
     "ttzxh-vue-live2d": "^0.2.7",
     "vue": "^2.6.11",
     "vue-chat-scroll": "^1.4.0",

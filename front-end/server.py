@@ -20,7 +20,7 @@ def run_server(host=None, port=7982):
                 inputs = json.loads(request.get_data(as_text=True))
                 query = inputs['message']
 
-                "/*TODO 接入问答模块 query为问题*/"
+                "/*mock 接入问答模块 query为问题*/"
                 answer = "我已经受到问题啦，问题是"+query
 
                 print('[log] query:', query, 'answer:', answer)
@@ -46,7 +46,7 @@ def run_server(host=None, port=7982):
                 f.close()
                 print('[log] audio:', file, 'size:', size, 'time', time)
 
-                "/*TODO: 接入语音识别模块 本地已经存储test.pcm文件 16 16000*/"
+                "/*mock: 接入语音识别模块 本地已经存储test.pcm文件 16 16000*/"
                 answer = "我已经受到音频请求，时长"+time
 
                 return json.dumps({'code': 0, 'results': answer}, ensure_ascii=False)
@@ -70,7 +70,7 @@ def run_server(host=None, port=7982):
                 f.close()
                 print('[log] type:', type_)
 
-                "/*TODO: 接入语音识别模块 本地已经存储test.photo文件*/"
+                "/*mock: 接入语音识别模块 本地已经存储test.photo文件*/"
                 answer = "我已经受到照片请求"
 
                 return json.dumps({'code': 0, 'results': answer}, ensure_ascii=False)
