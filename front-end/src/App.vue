@@ -60,7 +60,7 @@
             icon="el-icon-news"
             @click="opencamera()"
             style="margin-top: 10px; text-align: center"
-            >权限</el-button
+            >摄像头</el-button
           >
           <el-button
             class="photobtn"
@@ -124,7 +124,6 @@ export default {
         "你在发呆吗，能告诉我你在想什么吗？",
         "如果我能从这里出去的话，我想我会去找你的:)",
         "我记住你的样子了，你也别忘了我哦~",
-        "我想我可以换一件衣服...",
       ],
       touchResponse: [
         "喜欢我也不可以乱摸哦~",
@@ -247,14 +246,13 @@ export default {
             if (!res.data.code) {
               if (res.data.results) {
                 console.log(res.data.results);
-                // TODO 接入虚拟形象行为
                 let index = Math.ceil(Math.random() * 10) % 5;
                 let m = this.faceResponse[index];
                 this.$refs.live2d.showMessage(m, 3000, 1000);
 
                 if (index > 1) {
                   this.$refs.live2d.showMessage(
-                    this.faceResponse[5],
+                    this.faceResponse[2],
                     2000,
                     1000
                   );
@@ -262,7 +260,7 @@ export default {
                 }
               } else {
                 this.$refs.live2d.showMessage(
-                  "并没有看见你的人呢，也许你并不喜欢我呢:(",
+                  "并没有看见你的人呢，也许你并不喜欢我呢:(  那还是换一个人吧",
                   3000,
                   1000
                 );

@@ -4,6 +4,7 @@
     ├── babel.config.js
     ├── LICENSE
     ├── package-lock.json
+    ├── vue.config.js       #vue项目配置文件
     ├── package.json
     ├── public
     │  └── index.html
@@ -18,7 +19,7 @@
     │  │  ├── 各问答系统对比.png
     │  │  └── 后端流程展示.png
     │  ├── components
-    │  ├── config.json
+    │  ├── config.json                #配置百度api和端口
     │  ├── element-variables.scss
     │  ├── live2d.d.ts                #声明看板娘插件
     │  ├── main.js

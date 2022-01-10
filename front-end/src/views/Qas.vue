@@ -93,6 +93,9 @@ export default {
       recorder: null,
       pcmBlob: null,
 
+      mp3url: null,
+      audio: null,
+
       //波浪图-录音
       drawRecordId: null,
       oCanvas: null,
@@ -131,7 +134,7 @@ export default {
               this.girlmessage("你看我听得对吗，听错了也不能怪我哦~");
             } else {
               // todo 错误识别处理
-              console.log(res.data.results);
+              console.log(res.data.message);
               this.girlmessage(
                 "也许是你们人类的声音太难懂了，或者，是我的问题吗...我没有听出来"
               );
@@ -197,7 +200,11 @@ export default {
     getPermission() {
       Recorder.getPermission().then(
         () => {
-          this.$Message.success("获取权限成功");
+          this.$message({
+            duration: 1000,
+            message: "已经获取录音权限",
+            type: "success",
+          });
         },
         (error) => {
           console.log(`${error.name} : ${error.message}`);
@@ -289,6 +296,17 @@ export default {
       this.pCtx.lineTo(this.pCanvas.width, this.pCanvas.height / 2);
       this.pCtx.stroke();
     },
+    dataURLtoBlob(dataurl) {
+      var arr = dataurl.split(","),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime });
+    },
     sendMessage(msg) {
       this.input = "";
       if (!msg) {
@@ -299,6 +317,7 @@ export default {
         user: 0,
         content: msg,
       });
+
       sendMessage(this.senderId, msg)
         .then((res) => {
           if (!res.data.code) {
@@ -308,12 +327,32 @@ export default {
               content: res.data.text,
             });
             this.pending = false;
+
             //TODO 语音输出 测试
-            url = "data:audio/mp3;base64," + res.data.audio;
-            let audio = new Audio(res.data.audio);
-            audio.play();
+
+            this.mp3url = "data:audio/mp3;base64," + res.data.audio;
+            this.audio = new Audio(this.mp3url);
+            let playPromise;
+            playPromise = this.audio.play();
+            if (playPromise) {
+              playPromise;
+            }
+
+            if (res.data.type == 1) {
+              this.girlmessage("我想我还是不够聪明吧~");
+            } else if (res.data.type == 2) {
+              this.girlmessage("我没有找到匹配的文章，实在不好意思啊...");
+            } else if (res.data.type == 16) {
+              this.girlmessage("哈哈这都是我瞎编的，你别当真啊~");
+            } else if (res.data.type == 32) {
+              this.girlmessage("我很确定，真的！");
+            } else if (res.data.type == 64) {
+              this.girlmessage("这个答案我也不确定，你说呢？");
+            } else {
+              this.girlmessage("我想我还是能回答出来的~");
+            }
           } else {
-            console.log(res.data.text);
+            console.log(res.data.message);
             this.messages.push({
               user: 1,
               content: "你的问题我暂时理解不了哦...",
@@ -322,7 +361,8 @@ export default {
             this.girlmessage("看来这个系统还没我聪明嘛~");
           }
         })
-        .catch(() => {
+        .catch((e) => {
+          console.log(e);
           this.messages.push({
             user: 1,
             content: "发生了一些未知错误，稍后再试哦...",
