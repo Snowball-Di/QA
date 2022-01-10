@@ -1,10 +1,12 @@
 # coding:utf-8
+import base64
 import time
 
 from colorama import Fore
 
 import retriever
 import reader
+from audio import text2audio
 
 # --------------------------------------------------
 # 新版QA模块 - 设置
@@ -23,7 +25,7 @@ ANSWER_NOT_SURE = 0x0040
 # 超过这个分数（代表有把握）就返回definite
 THRESHOLD = 0.5
 # 是否在控制台输出详细信息
-verbose = False
+verbose = True
 # 拼接文档的总长度限制
 max_context_length = 2048
 # 是否使用多文档分别过pipeline
@@ -34,14 +36,15 @@ def generate_reply(msg_type, question_text=None, answer_text=None) -> dict:
     if verbose:
         print('应答类型: %d' % msg_type, '; 问题: %s' % question_text, '; 答案: %s' % answer_text)
 
-    # 语音合成
-    pass
+    audio_data = text2audio(answer_text)
+    audio_bytes = base64.b64encode(audio_data)
 
-    reply = {'type': msg_type,
-             'question': question_text,
-             'text': answer_text,
-             'audio': None}
-    return reply
+    reply_dict = {'code': 0,
+                  'type': msg_type,
+                  'question': question_text,
+                  'text': answer_text,
+                  'audio': str(audio_bytes, 'ascii')}
+    return reply_dict
 
 
 class Qa:
