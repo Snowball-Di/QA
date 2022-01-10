@@ -18,7 +18,6 @@
           <el-image
             style="width: 325px; height: 282px; margin: 20px"
             :src="home"
-            :fit="fit"
           ></el-image>
         </div>
       </el-card>
@@ -30,11 +29,7 @@
         <br />
         <br />
         <div class="demo-image">
-          <el-image
-            style="width: 600px; height: 350px"
-            :src="cmp"
-            :fit="fit"
-          ></el-image>
+          <el-image style="width: 600px; height: 350px" :src="cmp"></el-image>
         </div>
       </el-card>
     </el-carousel-item>
@@ -48,7 +43,6 @@
           <el-image
             style="width: 600px; height: 400px"
             :src="back"
-            :fit="fit"
           ></el-image></div
       ></el-card>
     </el-carousel-item>
@@ -59,7 +53,6 @@
         <div class="demo-image">
           <el-image
             :src="logo"
-            :fit="fit"
             style="width: 400px; height: 400px"
           ></el-image></div
       ></el-card>
