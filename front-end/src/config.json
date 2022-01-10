@@ -1,3 +1,6 @@
 {
-    "API_HOST":"http://127.0.0.1:7982/api"
+    "API_HOST":"http://192.168.176.51:7982/api",
+    "AppID":"25246604",
+    "API_key":"EgLd9bXI9HOifyXzpGRLMG5y",
+    "Secret_Key":"lveNHqIbGnADRxDiXsrgVdLT1tRvGYtq"
 }

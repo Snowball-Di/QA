@@ -247,7 +247,6 @@ export default {
             if (!res.data.code) {
               if (res.data.results) {
                 console.log(res.data.results);
-                // TODO 接入虚拟形象行为
                 let index = Math.ceil(Math.random() * 10) % 5;
                 let m = this.faceResponse[index];
                 this.$refs.live2d.showMessage(m, 3000, 1000);

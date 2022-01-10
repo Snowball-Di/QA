@@ -131,7 +131,7 @@ export default {
               this.girlmessage("你看我听得对吗，听错了也不能怪我哦~");
             } else {
               // todo 错误识别处理
-              console.log(res.data.results);
+              console.log(res.data.message);
               this.girlmessage(
                 "也许是你们人类的声音太难懂了，或者，是我的问题吗...我没有听出来"
               );
@@ -312,8 +312,22 @@ export default {
             url = "data:audio/mp3;base64," + res.data.audio;
             let audio = new Audio(res.data.audio);
             audio.play();
+
+            if (res.data.type == 1) {
+              this.girlmessage("我想我还是不够聪明吧~");
+            } else if (res.data.type == 2) {
+              this.girlmessage("我没有找到匹配的文章，实在不好意思啊...");
+            } else if (res.data.type == 16) {
+              this.girlmessage("哈哈这都是我瞎编的，你别当真啊~");
+            } else if (res.data.type == 32) {
+              this.girlmessage("我很确定，真的！");
+            } else if (res.data.type == 64) {
+              this.girlmessage("这个答案我也不确定，你说呢？");
+            } else {
+              this.girlmessage("我想我还是能回答出来的~");
+            }
           } else {
-            console.log(res.data.text);
+            console.log(res.data.message);
             this.messages.push({
               user: 1,
               content: "你的问题我暂时理解不了哦...",
